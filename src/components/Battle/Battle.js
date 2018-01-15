@@ -1,32 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 import "./Battle.css";
-
-const PlayerPreview = props => {
-  return (
-    <div>
-      <div className="column">
-        <img
-          className="avatar"
-          src={props.avatar}
-          alt={`Avatar for ${props.username}`}
-        />
-        <h2 className="username">@{props.username}</h2>
-      </div>
-      <button className="reset" onClick={props.onReset.bind(null, props.id)}>
-        Reset
-      </button>
-    </div>
-  );
-};
-
-PlayerPreview.propTypes = {
-  avatar: PropTypes.string.isRequired,
-  username: PropTypes.string.isRequired,
-  id: PropTypes.string.isRequired,
-  onReset: PropTypes.func.isRequired
-};
+import PlayerPreview from "../PlayerPreview/PlayerPreview";
 
 class PlayerInput extends React.Component {
   constructor() {
@@ -107,10 +83,10 @@ class Battle extends React.Component {
     });
   };
 
-  handleReset = (id) => {
+  handleReset = id => {
     this.setState(() => {
       const newState = {};
-      newState[`${id}Name`] = '';
+      newState[`${id}Name`] = "";
       newState[`${id}Image`] = null;
       return newState;
     });
@@ -135,12 +111,11 @@ class Battle extends React.Component {
           )}
 
           {playerOneImage && (
-            <PlayerPreview
-              avatar={playerOneImage}
-              username={playerOneName}
-              id="playerOne"
-              onReset={this.handleReset}
-            />
+            <PlayerPreview avatar={playerOneImage} username={playerOneName}>
+              <button className="reset" onClick={this.handleReset.bind(null, "playerOne")}>
+                Reset
+              </button>
+            </PlayerPreview>
           )}
 
           {!playerTwoName && (
@@ -152,18 +127,25 @@ class Battle extends React.Component {
           )}
 
           {playerTwoImage && (
-            <PlayerPreview
-              avatar={playerTwoImage}
-              username={playerTwoName}
-              id="playerTwo"
-              onReset={this.handleReset}
-            />
+            <PlayerPreview avatar={playerTwoImage} username={playerTwoName}>
+              <button className="reset" onClick={this.handleReset.bind(null, "playerTwo")}>
+                Reset
+              </button>
+            </PlayerPreview>
           )}
         </div>
-        {playerOneImage && playerTwoImage && <Link className="button" to={{
-          pathname: `${match.url}/results`,
-          search: `?playerOneName=${playerOneName}&playerTwoName=${playerTwoName}`
-        }}>Battle</Link>}
+        {playerOneImage &&
+          playerTwoImage && (
+            <Link
+              className="button"
+              to={{
+                pathname: `${match.url}/results`,
+                search: `?playerOneName=${playerOneName}&playerTwoName=${playerTwoName}`
+              }}
+            >
+              Battle
+            </Link>
+          )}
       </div>
     );
   }
