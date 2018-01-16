@@ -10,14 +10,14 @@ import Results from './components/Results/Results';
 class App extends Component {
   render() {
     return (
-      <Router>
+      <Router basename={process.env.PUBLIC_URL}>
         <div className="App">
           <Nav />
           <Switch>
-            <Route exact path="/#/home" component={Home} />
-            <Route exact path="/#/battle" component={Battle} />
-            <Route path="/#/battle/results" component={Results} />
-            <Route path="/#/popular" component={Popular} />
+            <Route exact path="/home" component={Home} />
+            <Route exact path="/battle" component={Battle} />
+            <Route path="/battle/results" component={Results} />
+            <Route path="/popular" component={Popular} />
             <Route render={() => <p>Not Found</p>} />
           </Switch>
         </div>
