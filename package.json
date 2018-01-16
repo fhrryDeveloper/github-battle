@@ -2,6 +2,7 @@
   "name": "github-battle",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://nunulong.github.io/github-battle",
   "dependencies": {
     "axios": "^0.17.1",
     "dotenv": "^4.0.0",
