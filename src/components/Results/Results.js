@@ -6,9 +6,7 @@ import PropTypes from "prop-types";
 import PlayerPreview from "../PlayerPreview/PlayerPreview";
 import Loading from '../Loading/Loading';
 
-const Profile = props => {
-  const info = props.info;
-
+const Profile = ({ info }) => {
   return (
     <PlayerPreview avatar={info.avatar_url} username={info.login}>
       <ul className="space-list-items">
@@ -28,12 +26,12 @@ const Profile = props => {
   );
 };
 
-const Player = props => {
+const Player = ({ label, score, profile }) => {
   return (
     <div>
-      <h1 className="header">{props.label}</h1>
-      <h3 style={{ textAlign: "center" }}>Score: {props.score}</h3>
-      <Profile info={props.profile} />
+      <h1 className="header">{label}</h1>
+      <h3 style={{ textAlign: "center" }}>Score: {score}</h3>
+      <Profile info={profile} />
     </div>
   );
 };
@@ -56,33 +54,26 @@ class Results extends React.Component {
   }
 
   componentDidMount() {
-    const players = queryString.parse(this.props.location.search);
-    battle([players.playerOneName, players.playerTwoName]).then(results => {
+    const { playerOneName, playerTwoName } = queryString.parse(this.props.location.search);
+    battle([playerOneName, playerTwoName]).then(results => {
       if (!results) {
-        return this.setState(() => {
-          return {
+        return this.setState(() => ({
             error:
               "Looks like there was error. Check that both users exist on Github.",
             loading: false
-          };
-        });
+          }));
       }
-      this.setState(() => {
-        return {
+      this.setState(() => ({
           error: null,
           winner: results[0],
           loser: results[1],
           loading: false
-        };
-      });
+        }))
     });
   }
 
   render() {
-    const error = this.state.error;
-    const winner = this.state.winner;
-    const loser = this.state.loser;
-    const loading = this.state.loading;
+    const { error, winner, loser, loading } = this.state;
 
     if (loading) {
       return <Loading />
