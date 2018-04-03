@@ -1,54 +1,68 @@
 import axios from 'axios';
 require('dotenv').config();
 
-export const fetchPopularRepos = (language) => {
-  const encodedURI = window.encodeURI(`https://api.github.com/search/repositories?q=stars:>1+language:${language}&sort=stars&order=desc&type=Repositories`);
+const id = process.env.GITHUB_CLIENT_ID;
+const sec = process.env.GITHUB_CLIENT_SECRET;
+const params = `?client_id=${id}&client_secret=${sec}`;
 
-  return axios.get(encodedURI).then(({ data }) => data.items);
+export const fetchPopularRepos = async language => {
+    const encodedURI = window.encodeURI(
+        `https://api.github.com/search/repositories?q=stars:>1+language:${language}&sort=stars&order=desc&type=Repositories`
+    );
+
+    const repos = await axios.get(encodedURI).catch(handleError);
+    return repos.data.items;
 };
 
-export const battle = (players) => {
-  const id = process.env.GITHUB_CLIENT_ID;
-  const sec = process.env.GITHUB_CLIENT_SECRET;
-  const params = `?client_id=${id}&client_secret=${sec}`;
+export const battle = async players => {
+    const results = await Promise.all(players.map(getUserData)).catch(
+        handleError
+    );
 
-  const getProfile = (username) => {
-    return axios.get(`https://api.github.com/users/${username}${params}`)
-      .then(({ data }) => data);
-  };
+    return results === null ? results : sortPlayers(results);
+};
 
-  const getRepos = (username) => {
-    return axios.get(`https://api.github.com/users/${username}/repos${params}&per_page=100`);
-  };
+const getProfile = async username => {
+    const profile = await axios.get(
+        `https://api.github.com/users/${username}${params}`
+    );
+    return profile.data;
+};
 
-  const getStarCount = (repos) => {
-    return repos.data.reduce((count, { stargazers_count }) => count + stargazers_count, 0);
-  };
+const getRepos = username => {
+    return axios.get(
+        `https://api.github.com/users/${username}/repos${params}&per_page=100`
+    );
+};
 
-  const calculateScore = ({ followers }, repos) => {
-    return (followers * 3) + getStarCount(repos);
-  };
+const getStarCount = repos => {
+    return repos.data.reduce(
+        (count, { stargazers_count }) => count + stargazers_count,
+        0
+    );
+};
 
-  const handleError = (error) => {
-    console.warn(error);
-    return null;
-  };
+const calculateScore = ({ followers }, repos) => {
+    return followers * 3 + getStarCount(repos);
+};
 
-  const getUserData = (player) => {
-    return Promise.all([
-      getProfile(player),
-      getRepos(player)
-    ]).then(([ profile, repos ]) => ({
+const getUserData = async player => {
+    const [profile, repos] = await Promise.all([
+        getProfile(player),
+        getRepos(player)
+    ]);
+
+    return {
         profile,
         score: calculateScore(profile, repos)
-      }));
-  };
+    };
+};
 
-  const sortPlayers = (players) => {
-    return players.sort((a, b) => b.score - a.score)
-  };
+const sortPlayers = players => {
+    return players.sort((a, b) => b.score - a.score);
+};
 
-  return Promise.all(players.map(getUserData))
-    .then(sortPlayers)
-    .catch(handleError);
+const handleError = error => {
+    console.warn(error);
+    return null;
 };
